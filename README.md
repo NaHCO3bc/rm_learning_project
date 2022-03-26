@@ -1,4 +1,4 @@
-# RM_learning_report
+# RM_learning_project
 
 ## **Here are all my learning projects since Oct 2021 in GDUT-DynamicX**
 
