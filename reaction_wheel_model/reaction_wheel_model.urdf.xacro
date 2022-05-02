@@ -1,0 +1,87 @@
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="reaction_wheel">
+
+    <xacro:property name="l" value="0.18"/>
+    <xacro:arg name="use_simulation" default="true"/>
+
+    <link name="world"/>
+    <link name="base_link">
+        <inertial>
+            <mass value="13.079909"/>
+            <origin xyz="0 0 0"/>
+            <inertia ixx="7.774e-1" ixy="-3.780e-3" ixz="8.217e-3" iyy="8.435e-1"
+                     iyz="1.434e-2" izz="3.156e-1"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0.045" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.06 0.06 0.09"/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.08" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.06 0.06 0.09"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <link name="reaction_wheel">
+        <inertial>
+            <mass value="0.41"/>
+            <origin xyz="0 0 0"/>
+            <inertia ixx="0" ixy="0" ixz="0" iyy="1.795e-3" iyz="0" izz="0"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="1.57 0 0"/>
+            <geometry>
+                <cylinder length="0.05" radius="0.025"/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.03" rpy="1.57 0 0"/>
+            <geometry>
+                <cylinder length="0.05" radius="0.02"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <joint name="base_joint" type="revolute">
+        <axis xyz="0 1 0"/>
+        <parent link="world"/>
+        <child link="base_link"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <limit effort="6" velocity="70" lower="-1e9" upper="1e9"/>
+    </joint>
+
+    <joint name="reaction_wheel_joint" type="revolute">
+        <axis xyz="0 1 0"/>
+        <origin xyz="0 0 0.18" rpy="0 0 0"/>
+        <parent link="base_link"/>
+        <child link="reaction_wheel"/>
+        <limit effort="3" velocity="76" lower="-1e9" upper="1e9"/>
+    </joint>
+
+    <xacro:include filename="$(find rm_description)/urdf/common/imu.urdf.xacro"/>
+    <xacro:IMU connected_to="base_link" imu_name="base_imu" xyz="0 0 0.05" rpy="0 0 0"/>
+
+    <transmission name="trans_reaction_wheel_joint">
+        <type>transmission_interface/SimpleTransmission</type>
+        <actuator name="reaction_wheel_joint_motor">
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+        <joint name="reaction_wheel_joint">
+            <offset>0</offset>
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+    </transmission>
+
+    <xacro:if value="$(arg use_simulation)">
+        <gazebo>
+            <plugin name="rm_ros_control" filename="librm_robot_hw_sim.so">
+                <robotNamespace>/</robotNamespace>
+                <robotSimType>rm_gazebo/RmRobotHWSim</robotSimType>
+            </plugin>
+        </gazebo>
+    </xacro:if>
+
+</robot>
