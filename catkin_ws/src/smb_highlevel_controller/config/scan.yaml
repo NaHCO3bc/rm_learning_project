@@ -1,5 +1,0 @@
-scan_suscriber:
-topics:
-- topic:  scan
-  type: sensor_msgs/LaserScan
-queue_size: 10
